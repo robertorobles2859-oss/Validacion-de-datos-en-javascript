@@ -1,0 +1,6 @@
+{
+  "usuario": "texto",
+  "nivel": "numero",
+  "activo": "si_no",
+  "puntos": "numero"
+}
