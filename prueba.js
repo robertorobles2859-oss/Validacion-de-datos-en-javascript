@@ -1,43 +1,43 @@
 const fs = require('fs');
 const path = require('path');
-const { generateValidatorFromSchema } = require('./translator');
+const { generarValidadorDesdeEsquema } = require('./translator');
 
-const validatorPath = path.resolve(__dirname, 'validadorGenerado.js');
+const rutaValidador = path.resolve(__dirname, 'validadorGenerado.js');
 
-function loadJsonFile(filename) {
-  const raw = fs.readFileSync(filename, 'utf8');
-  return JSON.parse(raw);
+function cargarArchivoJson(nombreArchivo) {
+  const contenidoCrudo = fs.readFileSync(nombreArchivo, 'utf8');
+  return JSON.parse(contenidoCrudo);
 }
 
-function loadValidator() {
-  delete require.cache[validatorPath];
-  return require(validatorPath);
+function cargarValidador() {
+  delete require.cache[rutaValidador];
+  return require(rutaValidador);
 }
 
-function runTest(name, data, expectedOk) {
-  const validador = loadValidator();
-  const result = validador.safeParse(data);
-  const passed = result.success === expectedOk;
+function ejecutarPrueba(nombre, datos, esperadoCorrecto) {
+  const validador = cargarValidador();
+  const resultado = validador.safeParse(datos);
+  const paso = resultado.success === esperadoCorrecto;
 
-  if (passed) {
-    console.log(`✅ ${name}`);
+  if (paso) {
+    console.log(`✅ ${nombre}`);
   } else {
-    console.log(`❌ ${name}`);
-    if (!result.success) {
-      const issues = result.error.issues || result.error.errors || [];
-      issues.forEach((issue) => {
-        const pathString = Array.isArray(issue.path) ? issue.path.join('.') : '<root>';
-        console.log(`  - ${pathString || '<root>'}: ${issue.message}`);
+    console.log(`❌ ${nombre}`);
+    if (!resultado.success) {
+      const problemas = resultado.error.issues || resultado.error.errors || [];
+      problemas.forEach((problema) => {
+        const rutaCadena = Array.isArray(problema.path) ? problema.path.join('.') : '<root>';
+        console.log(`  - ${rutaCadena || '<root>'}: ${problema.message}`);
       });
     }
   }
 }
 
-function ensureSampleFiles() {
-  const samples = [
+function asegurarArchivosMuestra() {
+  const muestras = [
     {
-      filename: 'datosBuenos.json',
-      data: {
+      nombreArchivo: 'datosBuenos.json',
+      datos: {
         usuario: 'roberto_admin',
         nivel: 10,
         activo: true,
@@ -45,8 +45,8 @@ function ensureSampleFiles() {
       },
     },
     {
-      filename: 'datosMalos.json',
-      data: {
+      nombreArchivo: 'datosMalos.json',
+      datos: {
         usuario: 'hacker_pro',
         nivel: '99',
         activo: 'tal vez',
@@ -54,9 +54,9 @@ function ensureSampleFiles() {
     },
   ];
 
-  for (const sample of samples) {
-    if (!fs.existsSync(sample.filename)) {
-      fs.writeFileSync(sample.filename, JSON.stringify(sample.data, null, 2), 'utf8');
+  for (const muestra of muestras) {
+    if (!fs.existsSync(muestra.nombreArchivo)) {
+      fs.writeFileSync(muestra.nombreArchivo, JSON.stringify(muestra.datos, null, 2), 'utf8');
     }
   }
 
@@ -65,45 +65,45 @@ function ensureSampleFiles() {
   }
 }
 
-function runFileTest(name, filename, expectedOk) {
+function ejecutarPruebaArchivo(nombre, nombreArchivo, esperadoCorrecto) {
   try {
-    const data = loadJsonFile(filename);
-    runTest(`${name} (archivo: ${filename})`, data, expectedOk);
+    const datos = cargarArchivoJson(nombreArchivo);
+    ejecutarPrueba(`${nombre} (archivo: ${nombreArchivo})`, datos, esperadoCorrecto);
   } catch (error) {
-    if (expectedOk) {
-      console.log(`❌ ${name} (archivo: ${filename})`);
+    if (esperadoCorrecto) {
+      console.log(`❌ ${nombre} (archivo: ${nombreArchivo})`);
       console.log(`  - Error al leer el archivo: ${error.message}`);
     } else {
-      console.log(`✅ ${name} (archivo: ${filename}) detectó el problema correctamente.`);
+      console.log(`✅ ${nombre} (archivo: ${nombreArchivo}) detectó el problema correctamente.`);
       console.log(`  - Mensaje: ${error.message}`);
     }
   }
 }
 
-function main() {
+function principal() {
   try {
-    generateValidatorFromSchema();
-    ensureSampleFiles();
+    generarValidadorDesdeEsquema();
+    asegurarArchivosMuestra();
 
     console.log('--- INICIANDO PRUEBAS DE VALIDACIÓN ---\n');
 
-    runTest('Prueba 1: datos buenos en código', {
+    ejecutarPrueba('Prueba 1: datos buenos en código', {
       usuario: 'roberto_admin',
       nivel: 10,
       activo: true,
       puntos: 500,
     }, true);
 
-    runTest('Prueba 2: datos malos en código', {
+    ejecutarPrueba('Prueba 2: datos malos en código', {
       usuario: 'hacker_pro',
       nivel: '99',
       activo: 'tal vez',
     }, false);
 
     console.log();
-    runFileTest('Prueba 3: datos buenos desde archivo', 'datosBuenos.json', true);
-    runFileTest('Prueba 4: datos malos desde archivo', 'datosMalos.json', false);
-    runFileTest('Prueba 5: archivo JSON malformado', 'datosJsonInvalidos.json', false);
+    ejecutarPruebaArchivo('Prueba 3: datos buenos desde archivo', 'datosBuenos.json', true);
+    ejecutarPruebaArchivo('Prueba 4: datos malos desde archivo', 'datosMalos.json', false);
+    ejecutarPruebaArchivo('Prueba 5: archivo JSON malformado', 'datosJsonInvalidos.json', false);
 
     console.log('\n--- FIN DE PRUEBAS ---');
   } catch (error) {
@@ -111,5 +111,5 @@ function main() {
   }
 }
 
-main();
+principal();
 

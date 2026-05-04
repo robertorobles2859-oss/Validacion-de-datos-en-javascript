@@ -1,7 +1,8 @@
 const fs = require('fs');
 
-function mapTypeToZod(type) {
-  switch (type) {
+// Función para mapear tipos de esquema a tipos de Zod
+function mapearTipoAZod(tipo) {
+  switch (tipo) {
     case 'texto':
       return 'z.string()';
     case 'numero':
@@ -13,39 +14,43 @@ function mapTypeToZod(type) {
   }
 }
 
-function loadSchema(filename = 'esquema.json') {
-  const raw = fs.readFileSync(filename, 'utf8');
-  return JSON.parse(raw);
+// Función para cargar el esquema desde un archivo JSON
+function cargarEsquema(nombreArchivo = 'esquema.json') {
+  const contenidoCrudo = fs.readFileSync(nombreArchivo, 'utf8');
+  return JSON.parse(contenidoCrudo);
 }
 
-function translateToZod(schema) {
-  let code = `const { z } = require('zod');\n\n`;
-  code += `const validadorPersonalizado = z.object({\n`;
+// Función para traducir el esquema a código Zod
+function traducirAZod(esquema) {
+  let codigo = `const { z } = require('zod');\n\n`;
+  codigo += `const validadorPersonalizado = z.object({\n`;
 
-  for (const fieldName in schema) {
-    const fieldType = schema[fieldName];
-    const zodType = mapTypeToZod(fieldType);
-    code += `  ${fieldName}: ${zodType},\n`;
+  for (const nombreCampo in esquema) {
+    const tipoCampo = esquema[nombreCampo];
+    const tipoZod = mapearTipoAZod(tipoCampo);
+    codigo += `  ${nombreCampo}: ${tipoZod},\n`;
   }
 
-  code += `});\n\nmodule.exports = validadorPersonalizado;\n`;
-  return code;
+  codigo += `});\n\nmodule.exports = validadorPersonalizado;\n`;
+  return codigo;
 }
 
-function writeValidatorFile(code, filename = 'validadorGenerado.js') {
-  fs.writeFileSync(filename, code, 'utf8');
+// Función para escribir el archivo del validador
+function escribirArchivoValidador(codigo, nombreArchivo = 'validadorGenerado.js') {
+  fs.writeFileSync(nombreArchivo, codigo, 'utf8');
 }
 
-function generateValidatorFromSchema(schemaFile = 'esquema.json', outputFile = 'validadorGenerado.js') {
-  const schema = loadSchema(schemaFile);
-  const validatorCode = translateToZod(schema);
-  writeValidatorFile(validatorCode, outputFile);
-  return outputFile;
+// Función principal para generar el validador desde el esquema
+function generarValidadorDesdeEsquema(archivoEsquema = 'esquema.json', archivoSalida = 'validadorGenerado.js') {
+  const esquema = cargarEsquema(archivoEsquema);
+  const codigoValidador = traducirAZod(esquema);
+  escribirArchivoValidador(codigoValidador, archivoSalida);
+  return archivoSalida;
 }
 
 if (require.main === module) {
   try {
-    generateValidatorFromSchema();
+    generarValidadorDesdeEsquema();
     console.log("🚀 [ÉXITO]: Esquema leído de 'esquema.json' y traducido a 'validadorGenerado.js'");
   } catch (error) {
     console.error('❌ Error al generar el validador:', error.message);
@@ -54,8 +59,8 @@ if (require.main === module) {
 }
 
 module.exports = {
-  loadSchema,
-  translateToZod,
-  writeValidatorFile,
-  generateValidatorFromSchema,
+  cargarEsquema,
+  traducirAZod,
+  escribirArchivoValidador,
+  generarValidadorDesdeEsquema,
 };

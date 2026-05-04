@@ -1,59 +1,59 @@
 const fs = require('fs');
 const path = require('path');
-const { generateValidatorFromSchema } = require('./translator');
+const { generarValidadorDesdeEsquema } = require('./translator');
 
-const schemaFile = process.argv[2] || 'esquema.json';
-const dataFile = process.argv[3];
+const archivoEsquema = process.argv[2] || 'esquema.json';
+const archivoDatos = process.argv[3];
 
-function loadJsonFile(filename) {
-  const raw = fs.readFileSync(filename, 'utf8');
+function cargarArchivoJson(nombreArchivo) {
+  const contenidoCrudo = fs.readFileSync(nombreArchivo, 'utf8');
   try {
-    return JSON.parse(raw);
+    return JSON.parse(contenidoCrudo);
   } catch (error) {
-    throw new Error(`No se pudo leer JSON desde '${filename}': ${error.message}`);
+    throw new Error(`No se pudo leer JSON desde '${nombreArchivo}': ${error.message}`);
   }
 }
 
-function validateData(data) {
-  generateValidatorFromSchema(schemaFile);
-  const validatorPath = path.resolve(__dirname, 'validadorGenerado.js');
-  delete require.cache[validatorPath];
-  const validador = require(validatorPath);
-  return validador.safeParse(data);
+function validarDatos(datos) {
+  generarValidadorDesdeEsquema(archivoEsquema);
+  const rutaValidador = path.resolve(__dirname, 'validadorGenerado.js');
+  delete require.cache[rutaValidador];
+  const validador = require(rutaValidador);
+  return validador.safeParse(datos);
 }
 
-function getValidationIssues(result) {
-  if (!result.error) {
+function obtenerProblemasValidacion(resultado) {
+  if (!resultado.error) {
     return [];
   }
-  return result.error.issues || result.error.errors || [];
+  return resultado.error.issues || resultado.error.errors || [];
 }
 
-function printValidationResult(result) {
-  if (result.success) {
+function imprimirResultadoValidacion(resultado) {
+  if (resultado.success) {
     console.log('✅ Validación correcta: los datos cumplen el esquema.');
     return;
   }
 
   console.error('❌ Error de validación: los datos NO cumplen el esquema.');
-  for (const issue of getValidationIssues(result)) {
-    const pathString = Array.isArray(issue.path) ? issue.path.join('.') : '<root>';
-    console.error(`  - ${pathString || '<root>'}: ${issue.message}`);
+  for (const problema of obtenerProblemasValidacion(resultado)) {
+    const rutaCadena = Array.isArray(problema.path) ? problema.path.join('.') : '<root>';
+    console.error(`  - ${rutaCadena || '<root>'}: ${problema.message}`);
   }
 }
 
-function printUsage() {
+function imprimirUso() {
   console.log('Uso: node app.js [archivoEsquema.json] [archivoDatos.json]');
   console.log('Si no se indica archivo de datos, se ejecutan pruebas internas con datos buenos y malos.');
 }
 
 if (require.main === module) {
   try {
-    if (dataFile) {
-      const data = loadJsonFile(dataFile);
-      const result = validateData(data);
-      printValidationResult(result);
-      process.exit(result.success ? 0 : 1);
+    if (archivoDatos) {
+      const datos = cargarArchivoJson(archivoDatos);
+      const resultado = validarDatos(datos);
+      imprimirResultadoValidacion(resultado);
+      process.exit(resultado.success ? 0 : 1);
     }
 
     console.log('=== VALIDACIÓN POR DEFECTO ===');
@@ -71,10 +71,10 @@ if (require.main === module) {
     };
 
     console.log('\nPrueba 1: datos buenos');
-    printValidationResult(validateData(datosBuenos));
+    imprimirResultadoValidacion(validarDatos(datosBuenos));
 
     console.log('\nPrueba 2: datos malos');
-    printValidationResult(validateData(datosMalos));
+    imprimirResultadoValidacion(validarDatos(datosMalos));
 
     console.log('\nPuedes validar un archivo con: node app.js esquema.json datosBuenos.json');
   } catch (error) {

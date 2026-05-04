@@ -1,0 +1,14 @@
+// Ejemplo válido del lenguaje simplificado
+const pi = 3.14;
+let contador = 0;
+
+while (contador < 5) {
+  print("Valor: " + contador);
+  contador = contador + 1;
+}
+
+if (contador === 5) {
+  print("Finalizado");
+} else {
+  print("Error inesperado");
+}
