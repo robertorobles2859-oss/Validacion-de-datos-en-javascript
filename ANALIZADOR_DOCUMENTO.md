@@ -3,7 +3,7 @@
 ## Lenguaje simplificado definido
 
 El lenguaje soportado incluye:
-- Palabras reservadas: `var`, `let`, `const`, `if`, `else`, `while`, `return`, `print`
+- Palabras reservadas: `var`, `let`, `const`, `int`, `float`, `if`, `else`, `while`, `return`, `print`
 - Literales: números (`123`, `3.14`), cadenas (`"texto"`), booleanos (`true`, `false`) y nulo (`null`)
 - Identificadores: comienzan con letra o guion bajo y pueden contener letras, dígitos y `_`
 - Operadores: `+`, `-`, `*`, `/`, `%`, `=`, `==`, `!=`, `===`, `!==`, `<`, `<=`, `>`, `>=`, `&&`, `||`, `!`, `++`, `--`, `+=`, `-=`

@@ -13,7 +13,7 @@ const TokenType = {
 };
 
 const Keywords = new Set([
-  'var', 'let', 'const', 'if', 'else', 'while', 'for', 'function', 'return', 'print',
+  'var', 'let', 'const', 'int', 'float', 'if', 'else', 'while', 'for', 'function', 'return', 'print',
   'true', 'false', 'null',
 ]);
 
@@ -267,8 +267,17 @@ class Parser {
   }
 
   parseStatement() {
-    if (this.match(TokenType.Keyword, 'var') || this.match(TokenType.Keyword, 'let') || this.match(TokenType.Keyword, 'const')) {
-      return this.parseVariableDeclaration();
+    if (
+      this.match(TokenType.Keyword, 'var') ||
+      this.match(TokenType.Keyword, 'let') ||
+      this.match(TokenType.Keyword, 'const') ||
+      this.match(TokenType.Keyword, 'int') ||
+      this.match(TokenType.Keyword, 'float')
+    ) {
+      return this.parseDeclaration();
+    }
+    if (this.match(TokenType.Keyword, 'function')) {
+      return this.parseFunctionDeclaration();
     }
     if (this.match(TokenType.Keyword, 'if')) {
       return this.parseIfStatement();
@@ -286,6 +295,17 @@ class Parser {
       return this.parseBlockStatement();
     }
     return this.parseExpressionStatement();
+  }
+
+  parseDeclaration() {
+    const token = this.previous();
+    const kind = token.value;
+
+    if (kind === 'var' || kind === 'let' || kind === 'const') {
+      return this.parseVariableDeclaration();
+    }
+
+    return this.parseTypedDeclaration(kind);
   }
 
   parsePrintStatement() {
@@ -306,6 +326,50 @@ class Parser {
     }
     this.consume(TokenType.Punctuation, ';', "Se esperaba ';' después de la declaración.");
     return { type: 'VariableDeclaration', kind, id: identifier, init: initializer };
+  }
+
+  parseTypedDeclaration(typeName) {
+    const identifier = this.consume(TokenType.Identifier, 'Se esperaba un identificador después del tipo.');
+    if (this.match(TokenType.Punctuation, '(')) {
+      return this.parseFunctionDeclaration(typeName, identifier);
+    }
+
+    let initializer = null;
+    if (this.match(TokenType.Operator, '=')) {
+      initializer = this.parseExpression();
+    }
+    this.consume(TokenType.Punctuation, ';', "Se esperaba ';' después de la declaración.");
+    return { type: 'VariableDeclaration', kind: 'typed', varType: typeName, id: identifier, init: initializer };
+  }
+
+  parseFunctionDeclaration(returnType = null, identifier = null) {
+    const id = identifier || this.consume(TokenType.Identifier, 'Se esperaba un identificador de función.');
+    if (!identifier) {
+      this.consume(TokenType.Punctuation, '(', "Se esperaba '(' después del nombre de la función.");
+    }
+    const params = this.parseParameterList();
+    this.consume(TokenType.Punctuation, ')', "Se esperaba ')' después de los parámetros de la función.");
+    this.consume(TokenType.Punctuation, '{', "Se esperaba '{' al inicio del cuerpo de la función.");
+    const body = this.parseBlockStatement();
+    return {
+      type: 'FunctionDeclaration',
+      returnType: returnType === 'function' ? null : returnType,
+      id,
+      params,
+      body,
+    };
+  }
+
+  parseParameterList() {
+    const params = [];
+    if (!this.check(TokenType.Punctuation, ')')) {
+      do {
+        const paramType = this.consume(TokenType.Keyword, 'Se esperaba un tipo de parámetro.');
+        const paramName = this.consume(TokenType.Identifier, 'Se esperaba un identificador de parámetro.');
+        params.push({ type: 'Parameter', paramType: paramType.value, id: paramName });
+      } while (this.match(TokenType.Punctuation, ','));
+    }
+    return params;
   }
 
   parseIfStatement() {
@@ -457,7 +521,11 @@ class Parser {
       return { type: 'Literal', value: null, raw: 'null' };
     }
     if (this.match(TokenType.Identifier)) {
-      return { type: 'Identifier', name: this.previous().value };
+      let expression = { type: 'Identifier', name: this.previous().value };
+      while (this.match(TokenType.Punctuation, '(')) {
+        expression = this.finishCall(expression);
+      }
+      return expression;
     }
     if (this.match(TokenType.Punctuation, '(')) {
       const expression = this.parseExpression();
@@ -467,6 +535,17 @@ class Parser {
 
     this.error(this.peek(), 'Expresión esperada.');
     return { type: 'Literal', value: null, raw: 'null' };
+  }
+
+  finishCall(callee) {
+    const args = [];
+    if (!this.check(TokenType.Punctuation, ')')) {
+      do {
+        args.push(this.parseExpression());
+      } while (this.match(TokenType.Punctuation, ','));
+    }
+    this.consume(TokenType.Punctuation, ')', "Se esperaba ')' después de los argumentos de la llamada.");
+    return { type: 'CallExpression', callee, arguments: args };
   }
 
   match(type, value) {
