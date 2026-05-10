@@ -10,6 +10,7 @@ El lenguaje soportado incluye:
 - Separadores y puntuación: `(`, `)`, `{`, `}`, `[`, `]`, `;`, `,`, `.`
 - Comentarios de línea: `// comentario`
 - Comentarios multilínea: `/* comentario */`
+- `print` se usa como llamada de función: `print(...)`.
 
 > Nota: el lexer reconoce otras palabras reservadas como `for` y `function`, pero el parser actual está enfocado en declaraciones `var/let/const`, `if`, `while`, `return`, `print` y expresiones.
 
