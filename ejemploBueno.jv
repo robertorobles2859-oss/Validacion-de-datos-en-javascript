@@ -1,0 +1,30 @@
+// Código de prueba completo sin errores
+const PI = 3.14;
+int radio = 5;
+float area = PI * radio * radio;
+
+// Función que calcula el doble de un número
+int doblar(int numero) {
+  return numero * 2;
+}
+
+// Variable y bucle
+let contador = 1;
+while (contador <= 3) {
+  print(doblar(contador));
+  contador = contador + 1;
+}
+
+// Condicional con expresiones complejas
+if (area > 50 && radio > 0) {
+  print("El área es grande");
+} else {
+  print("El área es pequeña");
+}
+
+// Variables booleanas y lógica
+var esValido = true;
+if (esValido || area < 10) {
+  let resultado = doblar(10);
+  print(resultado);
+}

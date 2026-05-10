@@ -1,0 +1,31 @@
+// Código con errores propositales
+
+// Error 1: Falta punto y coma
+var x = 10
+
+// Error 2: Variable sin inicializar en declaración con tipo
+int resultado = 
+
+// Error 3: Paréntesis sin cerrar en función
+int sumar(int a, int b {
+  return a + b;
+}
+
+// Error 4: String sin cerrar
+let mensaje = "Hola mundo
+
+// Error 5: Expresión incompleta
+let y = ;
+
+// Error 6: Operador inválido en contexto
+if (x @ 5) {
+  print("Error");
+}
+
+// Error 7: Llaves sin cerrar
+while (x > 0) {
+  x = x - 1;
+  print(x)
+
+// Error 8: Identificador inválido
+let & = 5;
