@@ -86,6 +86,33 @@ node analizador.js ejemploConErrores.jv
 node validadorGenerado.js datosBuenos.json
 node validadorGenerado.js datosMalos.json
 ```
+## Ejemplos y Resultados
+
+```Ejemplo sin errores```
+<img width="311" height="146" alt="image" src="https://github.com/user-attachments/assets/2a8a61b1-a8eb-4d7a-982a-a5ae903d7093" />
+
+<img width="573" height="747" alt="image" src="https://github.com/user-attachments/assets/7c0580d2-7043-4152-93ff-09296bc862ac" />
+
+<img width="368" height="758" alt="image" src="https://github.com/user-attachments/assets/dbddd65e-5730-4b75-9b15-78bb2b673ec0" />
+
+<img width="386" height="776" alt="image" src="https://github.com/user-attachments/assets/1bbea69b-3dd9-45e9-9f69-0f5213e88622" />
+
+<img width="480" height="501" alt="image" src="https://github.com/user-attachments/assets/782251d6-5aba-4941-8135-bf047bd77b22" />
+
+```Ejemplo con errores```
+
+<img width="297" height="141" alt="image" src="https://github.com/user-attachments/assets/4afbfbf8-cfff-4627-923f-adb2df5e0ac4" />
+
+<img width="602" height="741" alt="image" src="https://github.com/user-attachments/assets/95e2406f-24f4-4c35-aaa9-30b3cda695ed" />
+
+<img width="550" height="745" alt="image" src="https://github.com/user-attachments/assets/d2096cae-eb8c-4a62-ab80-7e292c447a64" />
+
+<img width="366" height="769" alt="image" src="https://github.com/user-attachments/assets/f8010901-5df8-4745-be6f-93757b307e40" />
+
+<img width="486" height="764" alt="image" src="https://github.com/user-attachments/assets/9d9bd00c-8811-4c11-b934-7dde492ff2fe" />
+
+<img width="486" height="534" alt="image" src="https://github.com/user-attachments/assets/e1e1e5ba-4733-4bef-8921-5f28d631faba" />
+
 
 ## Contribuir
 Si quieres mejorar el proyecto:
