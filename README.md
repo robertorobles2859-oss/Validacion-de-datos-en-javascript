@@ -89,6 +89,7 @@ node validadorGenerado.js datosMalos.json
 ## Ejemplos y Resultados
 
 ```Ejemplo sin errores```
+
 <img width="311" height="146" alt="image" src="https://github.com/user-attachments/assets/2a8a61b1-a8eb-4d7a-982a-a5ae903d7093" />
 
 <img width="573" height="747" alt="image" src="https://github.com/user-attachments/assets/7c0580d2-7043-4152-93ff-09296bc862ac" />
